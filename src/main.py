@@ -6,6 +6,7 @@ from enum import Enum, unique
 import click
 
 from formatters.styles.gost import GOSTCitationFormatter
+from formatters.styles.nlm import NLMCitationFormatter
 from logger import get_logger
 from readers.reader import SourcesReader
 from renderer import Renderer
@@ -21,6 +22,7 @@ class CitationEnum(Enum):
     """
 
     GOST = "gost"  # ГОСТ Р 7.0.5-2008
+    NLM = "nlm"  # National Library of Medicine citation format
     MLA = "mla"  # Modern Language Association
     APA = "apa"  # American Psychological Association
 
@@ -76,10 +78,17 @@ def process_input(
         path_output,
     )
 
-    models = SourcesReader(path_input).read()
-    formatted_models = tuple(
-        str(item) for item in GOSTCitationFormatter(models).format()
-    )
+    match citation:
+        case CitationEnum.GOST.name:
+            models = SourcesReader(path_input).read("gost")
+            formatted_models = tuple(
+                str(item) for item in GOSTCitationFormatter(models).format()
+            )
+        case CitationEnum.NLM.name:
+            models = SourcesReader(path_input).read("nlm")
+            formatted_models = tuple(
+                str(item) for item in NLMCitationFormatter(models).format()
+            )
 
     logger.info("Генерация выходного файла ...")
     Renderer(formatted_models).render(path_output)

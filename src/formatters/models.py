@@ -32,6 +32,10 @@ class BookModel(BaseModel):
     year: int = Field(..., gt=0)
     pages: int = Field(..., gt=0)
 
+    @property
+    def trim_authors_dots(self):
+        self.authors = self.authors.rstrip(".")
+
 
 class InternetResourceModel(BaseModel):
     """
@@ -78,3 +82,53 @@ class ArticlesCollectionModel(BaseModel):
     publishing_house: str
     year: int = Field(..., gt=0)
     pages: str
+
+
+class JournalArticleModel(BaseModel):
+
+    """
+    Модель статьи из журнала:
+
+    .. code-block::
+
+        JournalArticleModel(
+            authors="Richard Evans, Alexander Pritzel, Tim Green.",
+            article_title="Highly accurate protein structure prediction with AlphaFold",
+            journal_title="Nature",
+            year=2021,
+            issue=596,
+            pages="583-589"
+        )
+    """
+
+    authors: str
+    article_title: str
+    journal_title: str
+    year: int = Field(..., gt=0)
+    issue: int = Field(..., gt=0)
+    pages: str
+
+
+class NewspaperModel(BaseModel):
+
+    """
+    Модель статьи из газеты:
+
+    .. code-block::
+
+        NewspaperModel(
+            authors="Austen Hufford.",
+            article_title="Some $191 Billion in Pandemic Payments May Have Been Improper, Labor Inspector General Says",
+            newspaper_title="The Wall Street Journal",
+            year=2023,
+            date="08.02",
+            issue=10
+        )
+    """
+
+    authors: str
+    article_title: str
+    newspaper_title: str
+    year: int = Field(..., gt=0)
+    date: str
+    issue: int = Field(..., gt=0)

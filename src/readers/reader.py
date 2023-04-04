@@ -7,10 +7,15 @@ from typing import Type
 import openpyxl
 from openpyxl.workbook import Workbook
 
-from formatters.models import BookModel, InternetResourceModel, ArticlesCollectionModel
+from formatters.models import (
+    BookModel,
+    InternetResourceModel,
+    ArticlesCollectionModel,
+    JournalArticleModel,
+    NewspaperModel,
+)
 from logger import get_logger
 from readers.base import BaseReader
-
 
 logger = get_logger(__name__)
 
@@ -90,17 +95,71 @@ class ArticlesCollectionReader(BaseReader):
         }
 
 
+class JournalArticleReader(BaseReader):
+    """
+    Reading the journal article model.
+    """
+
+    @property
+    def model(self) -> Type[JournalArticleModel]:
+        return JournalArticleModel
+
+    @property
+    def sheet(self) -> str:
+        return "Статья из журнала"
+
+    @property
+    def attributes(self) -> dict:
+        return {
+            "authors": {0: str},
+            "article_title": {1: str},
+            "journal_title": {2: str},
+            "year": {3: int},
+            "issue": {4: int},
+            "pages": {5: str},
+        }
+
+
+class NewspaperReader(BaseReader):
+    """
+    Reading the newspaper article model.
+    """
+
+    @property
+    def model(self) -> Type[NewspaperModel]:
+        return NewspaperModel
+
+    @property
+    def sheet(self) -> str:
+        return "Статья из газеты"
+
+    @property
+    def attributes(self) -> dict:
+        return {
+            "authors": {0: str},
+            "article_title": {1: str},
+            "newspaper_title": {2: str},
+            "year": {3: int},
+            "date": {4: str},
+            "issue": {5: int},
+        }
+
+
 class SourcesReader:
     """
     Чтение из источника данных.
     """
 
     # зарегистрированные читатели
-    readers = [
+    gost_readers = [
         BookReader,
         InternetResourceReader,
         ArticlesCollectionReader,
+        JournalArticleReader,
+        NewspaperReader,
     ]
+
+    nlm_readers = [JournalArticleReader, NewspaperReader]
 
     def __init__(self, path: str) -> None:
         """
@@ -112,7 +171,7 @@ class SourcesReader:
         logger.info("Загрузка рабочей книги ...")
         self.workbook: Workbook = openpyxl.load_workbook(path)
 
-    def read(self) -> list:
+    def read(self, citation_style: str = "gost") -> list:
         """
         Чтение исходного файла.
 
@@ -120,7 +179,12 @@ class SourcesReader:
         """
 
         items = []
-        for reader in self.readers:
+        match citation_style:
+            case "gost":
+                readers = self.gost_readers
+            case "nlm":
+                readers = self.nlm_readers
+        for reader in readers:
             logger.info("Чтение %s ...", reader)
             items.extend(reader(self.workbook).read())  # type: ignore
 

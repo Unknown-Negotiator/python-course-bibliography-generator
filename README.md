@@ -52,15 +52,20 @@ to fill it without changing the original template:
     ```
    
 5. Now it is possible to run the command inside the Docker container 
-    as usual, passing needed arguments to the console application:
-    ```shell
-    docker compose run app python main.py --citation gost --path_input /media/input.xlsx --path_output /media/output.xlsx
-    ```
-   
-   Also, it is possible to omit the arguments to use their defaults:
-    ```shell
-    docker compose run app python main.py
-    ```
+as usual, passing needed arguments to the console application.
+Two citation styles are supported right now: GOST or MLM.
+   1. GOST:
+       ```shell
+       docker compose run app python main.py --citation gost --path_input /media/input.xlsx --path_output /media/output.docx
+       ```
+   2. NLM:
+       ```shell
+       docker compose run app python main.py --citation nlm --path_input /media/input.xlsx --path_output /media/output_nlm.docx
+       ```
+6. Also, it is possible to omit the arguments to use their defaults:
+   ```shell
+      docker compose run app python main.py
+   ```
 
 ### Automation commands
 
